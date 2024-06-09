@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Created on Tue Apr 11 10:59:16 2023
@@ -8,22 +7,23 @@ Created on Tue Apr 11 10:59:16 2023
 import pandas as pd
 import argparse
 
+
 class InvalidFileTypeError(Exception):
     pass
 
+
 class MyFormatter:
-    
     def __init__(self, data, workbook, worksheet):
         self.data = data
         self.workbook = workbook
         self.worksheet = worksheet
-    
+
     def __repr__(self):
-        return f'MyFormatter(data={self.data}, workbook={self.workbook}, worksheet={self.worksheet})'
-    
+        return f"MyFormatter(data={self.data}, workbook={self.workbook}, worksheet={self.worksheet})"
+
     def __str__(self):
-        return f'MyFormatter(data={self.data}, workbook={self.workbook}, worksheet={self.worksheet})'
-    
+        return f"MyFormatter(data={self.data}, workbook={self.workbook}, worksheet={self.worksheet})"
+
     def check_format(self):
         """
         Checks the format of the data and performs necessary transformations if needed.
@@ -43,8 +43,10 @@ class MyFormatter:
             self.data = self.data.apply(lambda x: x.reset_index(drop=True))
             self.data = self.data.reset_index()
         else:
-            raise TypeError("The data must be a pd.DataFrame or a pd.core.groupby.DataFrameGroupBy.")
-    
+            raise TypeError(
+                "The data must be a pd.DataFrame or a pd.core.groupby.DataFrameGroupBy."
+            )
+
     def spacing(self):
         """
         Adjusts the column widths in the worksheet based on the data length.
@@ -61,10 +63,10 @@ class MyFormatter:
             max_width = max(self.data[col].astype(str).str.len().max(), len(col))
             self.worksheet.set_column(i, i, max_width + 1)
 
-    def color_columns(self, grey_bottom=False, color='#ffb3b3'):
+    def color_columns(self, grey_bottom=False, color="#ffb3b3"):
         """
-        Option to add background color to the column headers. 
-        
+        Option to add background color to the column headers.
+
 
         Parameters
         ----------
@@ -87,11 +89,25 @@ class MyFormatter:
         if grey_bottom:
             last_row = self.data.shape[0]
             last_column = self.data.shape[1]
-            last_row_format = self.workbook.add_format({'bg_color': '#d9d9d9', 'bold': True})
-            self.worksheet.conditional_format(last_row, 0, last_row, last_column, {'type': 'no_blanks', 'format': last_row_format})
+            last_row_format = self.workbook.add_format(
+                {"bg_color": "#d9d9d9", "bold": True}
+            )
+            self.worksheet.conditional_format(
+                last_row,
+                0,
+                last_row,
+                last_column,
+                {"type": "no_blanks", "format": last_row_format},
+            )
 
-        column_format = self.workbook.add_format({'bg_color': color})
-        self.worksheet.conditional_format(0, 0, 0, len(self.data.columns), {'type': 'no_blanks', 'format': column_format})
+        column_format = self.workbook.add_format({"bg_color": color})
+        self.worksheet.conditional_format(
+            0,
+            0,
+            0,
+            len(self.data.columns),
+            {"type": "no_blanks", "format": column_format},
+        )
 
     def add_borders(self):
         """
@@ -107,34 +123,45 @@ class MyFormatter:
         """
         self.check_format()
 
-        border_format = self.workbook.add_format({'border': 1, 'border_color': 'black'})
+        border_format = self.workbook.add_format({"border": 1, "border_color": "black"})
         border_format.set_locked(False)
-        self.worksheet.conditional_format(1, 0, len(self.data), self.data.shape[1]-1, {'type': 'no_errors', 'format': border_format})
-        
-    def panes(self):
-        self.worksheet.freeze_panes(1,1)
+        self.worksheet.conditional_format(
+            1,
+            0,
+            len(self.data),
+            self.data.shape[1] - 1,
+            {"type": "no_errors", "format": border_format},
+        )
 
+    def panes(self):
+        self.worksheet.freeze_panes(1, 1)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Process an Excel file.')
-    parser.add_argument('filename', type=str, help='The Excel file to process.')
-    parser.add_argument('--add_borders', action='store_true', help='Add borders to cells.')
-    parser.add_argument('--panes', action='store_true', help='Freeze panes.')
-    parser.add_argument('--color_columns', action='store_true', help='Color columns.')
-    parser.add_argument('--spacing', action='store_true', help='add spacing to Excel columns based on the maximum length of the data in each column.')
+    parser = argparse.ArgumentParser(description="Process an Excel file.")
+    parser.add_argument("filename", type=str, help="The Excel file to process.")
+    parser.add_argument(
+        "--add_borders", action="store_true", help="Add borders to cells."
+    )
+    parser.add_argument("--panes", action="store_true", help="Freeze panes.")
+    parser.add_argument("--color_columns", action="store_true", help="Color columns.")
+    parser.add_argument(
+        "--spacing",
+        action="store_true",
+        help="add spacing to Excel columns based on the maximum length of the data in each column.",
+    )
 
     args = parser.parse_args()
-    
-    if not args.filename.endswith('.xlsx'):
-        raise InvalidFileTypeError('The file to format must be a .xlsx file.')
-    
-    df = pd.read_excel(args.filename,index=False)
+
+    if not args.filename.endswith(".xlsx"):
+        raise InvalidFileTypeError("The file to format must be a .xlsx file.")
+
+    df = pd.read_excel(args.filename, index=False)
     with pd.ExcelWriter(args.filename) as writer:
-        
+
         workbook = writer.book
         df.to_excel(writer, sheetname="Sheet1", index=False)
-        worksheet = writer.sheets['Sheet1']
+        worksheet = writer.sheets["Sheet1"]
 
         formatter = MyFormatter(data, workbook, worksheet)
 
@@ -148,39 +175,6 @@ def main():
         if args.color_columns:
             formatter.spacing()
 
-if __name__ == '__main__':
-    main()             
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-    
+
+if __name__ == "__main__":
+    main()
