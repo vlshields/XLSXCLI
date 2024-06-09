@@ -12,6 +12,10 @@ The script can be run from the command line with the following arguments:
 - `--color_columns`: Color the column headers.
 - `--spacing`: Adjust column widths based on the maximum length of the data in each column.
 
+  ```shell
+  python frmtxlsx.py "test.xlsx" --add_borders --panes --spacing --color_columns
+  ```
+
 ## Class MyFormatter
 
 The `MyFormatter` class takes a pandas DataFrame, a workbook, and a worksheet as input. It provides the following methods:
