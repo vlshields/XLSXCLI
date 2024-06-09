@@ -156,14 +156,14 @@ def main():
     if not args.filename.endswith(".xlsx"):
         raise InvalidFileTypeError("The file to format must be a .xlsx file.")
 
-    df = pd.read_excel(args.filename, index=False)
-    with pd.ExcelWriter(args.filename) as writer:
+    df = pd.read_excel(args.filename)
+    with pd.ExcelWriter("newfile1.xlsx",engine="xlsxwriter") as writer:
 
         workbook = writer.book
-        df.to_excel(writer, sheetname="Sheet1", index=False)
+        df.to_excel(writer, sheet_name="Sheet1", index=False)
         worksheet = writer.sheets["Sheet1"]
 
-        formatter = MyFormatter(data, workbook, worksheet)
+        formatter = MyFormatter(df, workbook, worksheet)
 
         # Call the appropriate functions based on the arguments
         if args.add_borders:
